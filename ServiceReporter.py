@@ -18,45 +18,29 @@ class ServiceReporter(object):
     def report_service_instance_found(self, service_name, service_info):
         print("Service %s added, service info: %s" % (service_name, service_info))
 
-        if service_info is None:
-            instance_split = str(service_name).rsplit(".", 5)
+        instance_name = str(service_info.name).replace('.' + str(service_info.type), '')
+        service_name_full = str(service_info.type).replace('.local.', '')
+        service_name_split = service_name_full.split('.')
 
-            request_dict = {
-                "instance": instance_split[0],
-                "service": instance_split[1],
-                "service_protocol": instance_split[2],
-                "domain": "local",
-                "origin": self.config.server_origin,
-                "server": "undefined",
-                "port": -1,
-                "time": strftime("%d-%m-%Y %H:%M:%S", gmtime()),
-                "txtDataList": [],
+        txt_param = []
+        for key, value in service_info.properties.items():
+            txt_entry = {
+                "name": self.make_string(key),
+                "content": self.make_string(value),
             }
+            txt_param.append(txt_entry)
 
-        else:
-            instance_name = str(service_info.name).replace('.' + str(service_info.type), '')
-            service_name_full = str(service_info.type).replace('.local.', '')
-            service_name_split = service_name_full.split('.')
-
-            txt_param = []
-            for key, value in service_info.properties.items():
-                txt_entry = {
-                    "name": self.make_string(key),
-                    "content": self.make_string(value),
-                }
-                txt_param.append(txt_entry)
-
-            request_dict = {
-                "instance": instance_name,
-                "service": service_name_split[0],
-                "service_protocol": service_name_split[1],
-                "domain": "local",
-                "origin": self.config.server_origin,
-                "server": service_info.server,
-                "port": str(service_info.port),
-                "time": strftime("%d-%m-%Y %H:%M:%S", gmtime()),
-                "txtDataList": txt_param,
-            }
+        request_dict = {
+            "instance": instance_name,
+            "service": service_name_split[0],
+            "service_protocol": service_name_split[1],
+            "domain": "local",
+            "origin": self.config.server_origin,
+            "server": service_info.server,
+            "port": str(service_info.port),
+            "time": strftime("%d-%m-%Y %H:%M:%S", gmtime()),
+            "txtDataList": txt_param,
+        }   
 
         self.execute_request(request_dict)
 

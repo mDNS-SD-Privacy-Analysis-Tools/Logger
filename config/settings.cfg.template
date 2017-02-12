@@ -1,0 +1,9 @@
+[SERVER]
+url=http://localhost:8080
+origin=default_origin
+
+[REST]
+add_log=/log/add
+
+[LOGGING]
+ignoredServices=config/ignored_services.cfg
